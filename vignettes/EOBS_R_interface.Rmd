@@ -1,0 +1,43 @@
+---
+title: "EOBS using R"
+author: "Martin Roth"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+This doucment presents an simple example of a national climate monitoring using EOBS and eobsR.
+The idea is that one can do a national analysis using the following steps:
+
+- specify a certain variable
+- specify a time period
+- load a country shape file using database ...
+- load the corresponding data with eobsR
+- do the analysis, e.g., using rClimDex
+- put this into a shiny app (with slider for index and country)
+
+## Mean temperature in the Netherlands for 2014
+```{r}
+library(eobsR)
+library(ggplot2)
+adm0 <- raster::getData('GADM', country='NL', level=0)
+fadm0 = fortify(adm0)
+data  <- importEOBS('tg', '2014', adm0, "grid")
+meanData <- data[, .(TGG = mean(tg)), by = .(lon, lat)]
+```
+
+```{r, fig.show='hold'}
+ggplot(fadm0, aes(x = long, y = lat, group = group)) +
+  geom_path() +
+  coord_map() +
+  geom_tile(aes(x =lon, y = lat, fill = TGG, group = NULL),
+            alpha=0.5,
+            data = meanData) +
+  scale_fill_distiller(type='div', palette='RdBu', trans='reverse')
+```
+
+> "He who gives up [code] safety for [code] speed deserves neither."
+([via](https://twitter.com/hadleywickham/status/504368538874703872))
