@@ -1,0 +1,14 @@
+Package: eobsR
+Type: Package
+Title: R interface to EOBS
+Version: 0.1
+Date: 2015-11-06
+Author: Your Name
+Maintainer: Your Name <your@email.com>
+Description: More about what it does (maybe more than one line)
+License: GPL (>= 2)
+Depends: data.table
+Imports: Rcpp (>= 0.11.6)
+LinkingTo: Rcpp
+Suggests: knitr
+VignetteBuilder: knitr
