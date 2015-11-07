@@ -36,7 +36,8 @@ ggplot(fadm0, aes(x = long, y = lat, group = group)) +
   geom_tile(aes(x =lon, y = lat, fill = TGG, group = NULL),
             alpha=0.5,
             data = meanData) +
-  scale_fill_distiller(type='div', palette='RdBu', trans='reverse')
+  scale_fill_distiller(type='div', palette='RdBu', trans='reverse',
+                       guide = guide_legend(reverse=TRUE))
 ```
 
 ## Mean temperature in the Netherlands and Belgium for 2014
@@ -59,7 +60,8 @@ ggplot(fadm0, aes(x = long, y = lat, group = group)) +
   geom_tile(aes(x =lon, y = lat, fill = TGG, group = NULL),
             alpha=0.5,
             data = meanData) +
-  scale_fill_distiller(type='div', palette='RdBu', trans='reverse')
+  scale_fill_distiller(type='div', palette='RdBu', trans='reverse',
+                       guide = guide_legend(reverse=TRUE))
 ```
 
 > "He who gives up [code] safety for [code] speed deserves neither."
