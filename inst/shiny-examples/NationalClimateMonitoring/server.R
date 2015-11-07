@@ -1,22 +1,26 @@
+library(shiny)
+library(ggplot2)
+
+# Define server logic required to draw a histogram
 shinyServer(function(input, output) {
   
-  output$main_plot <- renderPlot({
+  # Expression that generates a histogram. The expression is
+  # wrapped in a call to renderPlot to indicate that:
+  #
+  #  1) It is "reactive" and therefore should be automatically
+  #     re-executed when inputs change
+  #  2) Its output type is a plot
+  
+  output$countryPlot <- renderPlot({
     
-    hist(faithful$eruptions,
-         probability = TRUE,
-         breaks = as.numeric(input$n_breaks),
-         xlab = "Duration (minutes)",
-         main = "Geyser eruption duration")
+    adm0 <- raster::getData('GADM', country=input$country, level=0)
+    fadm0 = fortify(adm0)
+    #data  <- importEOBS('tg', '2014', adm0, "grid")
+    #meanData <- data[, .(TGG = mean(tg)), by = .(lon, lat)]
     
-    if (input$individual_obs) {
-      rug(faithful$eruptions)
-    }
-    
-    if (input$density) {
-      dens <- density(faithful$eruptions,
-                      adjust = input$bw_adjust)
-      lines(dens, col = "blue")
-    }
-    
+    ggplot(fadm0, aes(x = long, y = lat, group = group)) +
+      geom_path() +
+      coord_map()
   })
+  
 })
