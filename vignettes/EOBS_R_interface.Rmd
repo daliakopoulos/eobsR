@@ -4,7 +4,7 @@ author: "Martin Roth"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{EOBS using R}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
@@ -36,8 +36,31 @@ ggplot(fadm0, aes(x = long, y = lat, group = group)) +
   geom_tile(aes(x =lon, y = lat, fill = TGG, group = NULL),
             alpha=0.5,
             data = meanData) +
-  scale_fill_distiller(type='div', palette='RdBu', trans='reverse')
+  scale_fill_distiller(type='div', palette='RdBu', trans='reverse',
+                       guide = guide_legend(reverse=TRUE))
 ```
 
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
+## Mean temperature in the Netherlands and Belgium for 2014
+```{r}
+library(eobsR)
+library(ggplot2)
+library(sp)
+adm01 <- raster::getData('GADM', country='NL', level=0)
+adm02 <- raster::getData('GADM', country='Belgium', level=0)
+adm0  <- rbind(as(adm01, 'SpatialPolygons'), as(adm02, 'SpatialPolygons'), makeUniqueIDs=TRUE)
+fadm0 = fortify(adm0)
+data  <- importEOBS('tg', '2014', adm0, "grid")
+meanData <- data[, .(TGG = mean(tg)), by = .(lon, lat)]
+```
+
+```{r, fig.show='hold'}
+ggplot(fadm0, aes(x = long, y = lat, group = group)) +
+  geom_path() +
+  coord_map() +
+  geom_tile(aes(x =lon, y = lat, fill = TGG, group = NULL),
+            alpha=0.5,
+            data = meanData) +
+  scale_fill_distiller(type='div', palette='RdBu', trans='reverse',
+                       guide = guide_legend(reverse=TRUE))
+```
+
