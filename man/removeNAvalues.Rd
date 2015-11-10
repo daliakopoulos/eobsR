@@ -2,13 +2,13 @@
 % Please edit documentation in R/importEOBS.R
 \name{removeNAvalues}
 \alias{removeNAvalues}
-\title{Removes all NA rows
+\title{Removes all rows with NAs
 Not for external use}
 \usage{
 removeNAvalues(data)
 }
 \description{
-Removes all NA rows
+Removes all rows with NAs
 Not for external use
 }
 
