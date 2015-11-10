@@ -4,20 +4,20 @@
 \alias{importEOBS}
 \title{Imports EOBS data}
 \usage{
-importEOBS(variable, period, area, grid, removeNA = TRUE, download = TRUE)
+importEOBS(variable, period, area, grid, na.rm = TRUE, download = TRUE)
 }
 \arguments{
 \item{variable}{String from ('TG', 'TN', 'TX, ...) / TODO: vector}
 
-\item{period}{Temporal object}
+\item{period}{Temporal object (should be only one temporal block)}
 
 \item{area}{Spatial object}
 
 \item{grid}{String from ('0.25', '0.5', 'R0.25', ...)}
 
-\item{removeNA}{Boolean indicating if rows with NA can be deleted / TODO: This has to be fine tuned}
-
 \item{download}{Boolean indicating whether to download}
+
+\item{removeNA}{Boolean indicating if rows with NA can be deleted / TODO: This has to be fine tuned}
 }
 \description{
 Imports EOBS data
