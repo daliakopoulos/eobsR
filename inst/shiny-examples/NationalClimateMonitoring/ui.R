@@ -10,7 +10,9 @@ shinyUI(fluidPage(
   sidebarLayout(
     sidebarPanel(
       selectInput("country", "Country", list("DE", "NL", "GBR"),
-                  selected = "NL")
+                  selected = "NL"),
+      selectInput("period", "Year", list("2014", "2013", "2012"),
+                  selected = "2014")
     ),
     
     # Show a plot of the generated distribution
