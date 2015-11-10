@@ -28,7 +28,7 @@ library(eobsR)
 library(ggplot2)
 adm0 <- raster::getData('GADM', country='NL', level=0)
 fadm0 = fortify(adm0)
-data  <- importEOBS('tg', period, adm0, "grid")
+data  <- importEOBS('tg', period, adm0, "0.50reg")
 meanData <- data[, .(TGG = mean(tg)), by = .(lon, lat)]
 ```
 
@@ -70,7 +70,7 @@ adm01 <- raster::getData('GADM', country='NL', level=0)
 adm02 <- raster::getData('GADM', country='Belgium', level=0)
 adm0  <- rbind(as(adm01, 'SpatialPolygons'), as(adm02, 'SpatialPolygons'), makeUniqueIDs=TRUE)
 fadm0 = fortify(adm0)
-data  <- importEOBS('tg', period, adm0, "grid")
+data  <- importEOBS('tg', period, adm0, "0.50reg")
 meanData <- data[, .(TGG = mean(tg)), by = .(lon, lat)]
 ```
 

@@ -9,11 +9,27 @@
 #'  period, and grid are deprecated
 importEOBS <- function(variable, period, area, grid, na.rm=TRUE,
                        download=TRUE) {
-  url <- 'http://opendap.knmi.nl/knmi/thredds/dodsC/e-obs_0.50regular/tg_0.50deg_reg_v12.0.nc'
+  #url <- 'http://opendap.knmi.nl/knmi/thredds/dodsC/e-obs_0.50regular/tg_0.50deg_reg_v12.0.nc'
+  url <- specifyURL(variable, grid)
   data <- getOpenDapValues(url, variable, sp::bbox(area), period)
   if ( !is.matrix(area) ) data <- removeOutsiders(data, area)
   if ( na.rm ) data <- removeNAvalues(data) 
   return(data)
+}
+
+#' Specifies the url based on the variableName and the grid
+specifyURL <- function(variableName, grid) {
+  url <- 'http://opendap.knmi.nl/knmi/thredds/dodsC/e-obs_'
+  if (grid=="0.50reg") {
+    url <- paste(url, '0.50regular/', sep="")
+    ending <- '_0.50deg_reg_v12.0.nc'
+  }
+  if (grid=="0.25reg") {
+    url <- paste(url, '0.25regular/', sep="")
+    ending <- '_0.25deg_reg_v12.0.nc'
+  }
+  url <- paste(url, variableName, ending, sep="")
+  return(url)
 }
 
 #' Accesses the OPeNDAB server
@@ -100,10 +116,11 @@ removeOutsiders <- function(data, area) {
   return(data[, pointID:=.GRP, by=key(data)])
 }
 
-#' Removes all NA rows 
+#' Removes all rows with NAs
 #' Not for external use
 removeNAvalues <- function(data) {
-  data <- data[which(!is.na(tg)), ]
+  # We don't check if time is NA (it should not) but date * 0 is not defined
+  data <- data[complete.cases(data[,!"time", with=FALSE]*0)]
   setkey(data, lon, lat)
   data[, pointID:=.GRP, by=key(data)]
 }
