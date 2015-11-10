@@ -16,13 +16,13 @@ shinyServer(function(input, output) {
     adm0 <- raster::getData('GADM', country=input$country, level=0)
     #raster::getData raises a warning (rename file does not work / should be copy instead)
     fadm0 = fortify(adm0)
-    data  <- importEOBS('tg', input$period, adm0, "grid")
-    meanData <- data[, .(TGG = mean(tg)), by = .(lon, lat)]
+    data  <- importEOBS(input$variableName, input$period, adm0, input$grid)
+    meanData <- data[, .(avg = mean(eval(parse(text=input$variableName)))), by = .(lon, lat)]
     
     ggplot(fadm0, aes(x = long, y = lat, group = group)) +
       geom_path() +
       coord_map() +
-      geom_tile(aes(x =lon, y = lat, fill = TGG, group = NULL),
+      geom_tile(aes(x =lon, y = lat, fill = avg, group = NULL),
                 alpha=0.5,
                 data = meanData) +
       scale_fill_distiller(type='div', palette='RdBu', trans='reverse',
