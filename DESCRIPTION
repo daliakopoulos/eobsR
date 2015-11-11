@@ -10,5 +10,5 @@ License: GPL (>= 2)
 Depends: data.table, shiny
 Imports: Rcpp (>= 0.11.6), ncdf4, sp, mapproj, xts
 LinkingTo: Rcpp
-Suggests: knitr
+Suggests: knitr, raster, ggplot2
 VignetteBuilder: knitr
