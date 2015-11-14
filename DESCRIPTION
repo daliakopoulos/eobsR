@@ -1,7 +1,7 @@
 Package: eobsR
 Type: Package
 Title: Access to EOBS
-Version: 0.2
+Version: 0.2.1
 Date: 2015-11-10
 Author: Martin Roth
 Maintainer: Martin Roth <roth@knmi.nl>

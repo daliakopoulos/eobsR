@@ -10,6 +10,10 @@ getOpenDapValues(opendapURL, variableName, bbox, period)
 \item{opendapURL}{String}
 
 \item{variableName}{String which variable to get}
+
+\item{bbox}{Bounding box of spatial object}
+
+\item{period}{Time period}
 }
 \description{
 Accesses the OPeNDAB server

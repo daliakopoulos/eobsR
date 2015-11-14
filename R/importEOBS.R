@@ -35,8 +35,8 @@ specifyURL <- function(variableName, grid) {
 #' Accesses the OPeNDAB server
 #' @param opendapURL String
 #' @param variableName String which variable to get
-#' @param bbox
-#' @param period
+#' @param bbox Bounding box of spatial object
+#' @param period Time period
 #' @note This function is based on the script by Maarten Plieger
 #' https://publicwiki.deltares.nl/display/OET/OPeNDAP+subsetting+with+R
 getOpenDapValues = function(opendapURL, variableName, bbox, period){

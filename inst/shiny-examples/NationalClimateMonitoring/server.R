@@ -1,3 +1,4 @@
+library(geosphere)
 library(shiny)
 library(ggplot2)
 library(xts)
@@ -31,6 +32,10 @@ shinyServer(function(input, output) {
     importEOBS(input$variableName, input$period, polygon(), input$grid)
   })
   
+  uniquePoints <- reactive({
+    dataInput()[, .(unique(lat), unique(lon)), by = pointID]
+  })
+  
   output$countryPlot <- renderPlot({
     
     meanData <- dataInput()[, .(avg = mean(eval(parse(text=input$variableName)))), by = .(lon, lat)]
@@ -43,8 +48,17 @@ shinyServer(function(input, output) {
                            guide = guide_legend(reverse=TRUE))
   })
   
+  selectedPointID <- reactiveValues(id=1)
+  observeEvent(input$locationClick, {
+      lon <- input$locationClick$x
+      lat <- input$locationClick$y
+      distancePoints <- uniquePoints()[, distGeo(c(V1, V2), c(lat, lon)), by=pointID]
+      setkey(distancePoints, V1)
+      selectedPointID$id <- distancePoints[1, pointID]
+  })
+  
   output$timeSeriesPlot <- renderDygraph({
-    dygraph(xts(dataInput()[pointID==1, eval(parse(text=input$variableName))], dataInput()[pointID==1, time])) %>% 
+    dygraph(xts(dataInput()[pointID==selectedPointID$id, eval(parse(text=input$variableName))], dataInput()[pointID==selectedPointID$id, time])) %>% 
       dySeries("V1", label=input$variableName)
   })
   
