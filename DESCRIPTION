@@ -19,6 +19,7 @@ Imports:
 LinkingTo: Rcpp
 Suggests:
     knitr,
+    raster,
     shiny,
     dygraphs
 VignetteBuilder: knitr
