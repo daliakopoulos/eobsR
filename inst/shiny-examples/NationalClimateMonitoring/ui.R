@@ -21,7 +21,9 @@ shinyUI(fluidPage(
     
     # Show a plot of the generated distribution
     mainPanel(
-      plotOutput("countryPlot")
+      plotOutput("countryPlot",
+                 dblclick = "locationClick"),
+      dygraphOutput("timeSeriesPlot")
     )
   )
 ))

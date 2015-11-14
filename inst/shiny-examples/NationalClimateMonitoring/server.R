@@ -1,5 +1,7 @@
+library(geosphere)
 library(shiny)
 library(ggplot2)
+library(xts)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
@@ -11,22 +13,53 @@ shinyServer(function(input, output) {
   #     re-executed when inputs change
   #  2) Its output type is a plot
   
+  polygon <- reactive({
+    raster::getData('GADM', country=input$country, level=0)
+    #raster::getData raises a warning (rename file does not work / should be copy instead)
+  })
+  
+  fortifiedPolygon <- reactive({
+    fortify(polygon())
+  })
+  
+  basemap <- reactive({
+    ggplot(fortifiedPolygon(), aes(x = long, y = lat, group = group)) +
+      geom_path() +
+      coord_map()
+  })
+  
+  dataInput <- reactive({
+    importEOBS(input$variableName, input$period, polygon(), input$grid)
+  })
+  
+  uniquePoints <- reactive({
+    dataInput()[, .(unique(lat), unique(lon)), by = pointID]
+  })
+  
   output$countryPlot <- renderPlot({
     
-    adm0 <- raster::getData('GADM', country=input$country, level=0)
-    #raster::getData raises a warning (rename file does not work / should be copy instead)
-    fadm0 = fortify(adm0)
-    data  <- importEOBS(input$variableName, input$period, adm0, input$grid)
-    meanData <- data[, .(avg = mean(eval(parse(text=input$variableName)))), by = .(lon, lat)]
+    meanData <- dataInput()[, .(avg = mean(eval(parse(text=input$variableName)))), by = .(lon, lat)]
     
-    ggplot(fadm0, aes(x = long, y = lat, group = group)) +
-      geom_path() +
-      coord_map() +
+    basemap() +
       geom_tile(aes(x =lon, y = lat, fill = avg, group = NULL),
                 alpha=0.5,
                 data = meanData) +
       scale_fill_distiller(type='div', palette='RdBu', trans='reverse',
                            guide = guide_legend(reverse=TRUE))
+  })
+  
+  selectedPointID <- reactiveValues(id=1)
+  observeEvent(input$locationClick, {
+      lon <- input$locationClick$x
+      lat <- input$locationClick$y
+      distancePoints <- uniquePoints()[, distGeo(c(V1, V2), c(lat, lon)), by=pointID]
+      setkey(distancePoints, V1)
+      selectedPointID$id <- distancePoints[1, pointID]
+  })
+  
+  output$timeSeriesPlot <- renderDygraph({
+    dygraph(xts(dataInput()[pointID==selectedPointID$id, eval(parse(text=input$variableName))], dataInput()[pointID==selectedPointID$id, time])) %>% 
+      dySeries("V1", label=input$variableName)
   })
   
 })
