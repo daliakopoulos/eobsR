@@ -7,23 +7,20 @@
 importEOBS(variable, period, area, grid, na.rm = TRUE, download = TRUE)
 }
 \arguments{
-\item{variable}{String from ('tg', 'tn', 'tx, ...) / TODO: vector}
+\item{variable}{String from ('tg', 'tn', 'tx, ...)}
 
-\item{period}{Temporal object (should be only one temporal block)}
+\item{period}{Either numeric, timeBased or ISO-8601 style (see package xts.)}
 
-\item{area}{Spatial object}
+\item{area}{Either SpatialPolygons or SpatialPolygonsDataFrame object (see
+package sp)}
 
-\item{grid}{String from ('0.25reg', '0.5reg', '0.25rot', '0.5rot')}
+\item{grid}{String from ('0.25reg', '0.50reg', '0.25rot', '0.50rot')}
 
 \item{download}{Boolean indicating whether to download}
 
-\item{removeNA}{Boolean indicating if rows with NA can be deleted / TODO: This has to be fine tuned}
+\item{removeNA}{Boolean indicating if rows with NA can be deleted}
 }
 \description{
 Imports EOBS data
-}
-\note{
-Fixed file is loaded instead of OPeNDAP request, i.e. variable,
- period, and grid are deprecated
 }
 
