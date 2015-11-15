@@ -1,7 +1,7 @@
 library(geosphere)
 library(shiny)
 library(ggplot2)
-library(xts)
+library(dygraphs)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
@@ -58,7 +58,7 @@ shinyServer(function(input, output) {
   })
   
   output$timeSeriesPlot <- renderDygraph({
-    dygraph(xts(dataInput()[pointID==selectedPointID$id, eval(parse(text=input$variableName))], dataInput()[pointID==selectedPointID$id, time])) %>% 
+    dygraph(xts::xts(dataInput()[pointID==selectedPointID$id, eval(parse(text=input$variableName))], dataInput()[pointID==selectedPointID$id, time])) %>% 
       dySeries("V1", label=input$variableName)
   })
   
