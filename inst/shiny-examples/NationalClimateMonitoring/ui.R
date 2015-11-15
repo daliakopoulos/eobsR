@@ -1,4 +1,5 @@
 library(shiny)
+library(dygraphs)
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
@@ -22,7 +23,7 @@ shinyUI(fluidPage(
     # Show a plot of the generated distribution
     mainPanel(
       plotOutput("countryPlot",
-                 dblclick = "locationClick"),
+                 click = "locationClick"),
       dygraphOutput("timeSeriesPlot")
     )
   )
