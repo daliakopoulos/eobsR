@@ -8,19 +8,20 @@ Maintainer: Martin Roth <roth@knmi.nl>
 Description: This package provides simple access to the EOBS data using OPeNDAP.
     Spatio-temporal subsetting allows for simple national analysis.
 License: GPL (>= 2)
-Depends:
+Depends: 
     data.table
-Imports:
+Imports: 
     Rcpp (>= 0.11.6),
     ncdf4,
     sp,
     mapproj,
     xts
 LinkingTo: Rcpp
-Suggests:
+Suggests: 
     knitr,
     raster,
     shiny,
-    dygraphs
+    dygraphs,
+    testthat
 VignetteBuilder: knitr
 RoxygenNote: 5.0.1

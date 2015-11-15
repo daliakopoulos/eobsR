@@ -1,16 +1,18 @@
 #' Imports EOBS data
-#' @param variable String from ('TG', 'TN', 'TX, ...) / TODO: vector 
+#' @param variable String from ('tg', 'tn', 'tx, ...) / TODO: vector 
 #' @param period Temporal object (should be only one temporal block)
 #' @param area Spatial object
-#' @param grid String from ('0.25', '0.5', 'R0.25', ...)
+#' @param grid String from ('0.25reg', '0.5reg', '0.25rot', '0.5rot')
 #' @param removeNA Boolean indicating if rows with NA can be deleted / TODO: This has to be fine tuned
 #' @param download Boolean indicating whether to download
 #' @note Fixed file is loaded instead of OPeNDAP request, i.e. variable,
 #'  period, and grid are deprecated
 importEOBS <- function(variable, period, area, grid, na.rm=TRUE,
                        download=TRUE) {
-  #url <- 'http://opendap.knmi.nl/knmi/thredds/dodsC/e-obs_0.50regular/tg_0.50deg_reg_v12.0.nc'
-  url <- specifyURL(variable, grid)
+  if (!variable %in% c('tg', 'tn', "tx", "pp", "rr")) {
+    stop(paste("Variable", variable, "not known"))
+  }
+  url  <- specifyURL(variable, grid)
   data <- getOpenDapValues(url, variable, sp::bbox(area), period)
   if ( !is.matrix(area) ) data <- removeOutsiders(data, area)
   if ( na.rm ) data <- removeNAvalues(data) 
