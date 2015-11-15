@@ -36,10 +36,22 @@ shinyServer(function(input, output) {
     dataInput()[, .(unique(lat), unique(lon)), by = pointID]
   })
   
+  subPeriod <- reactiveValues(start=NULL, end=NULL)
+  observeEvent(input$timeSeriesPlot_date_window, {
+    if(!is.null(input$timeSeriesPlot_date_window)) {
+      subPeriod$start <- as.Date(input$timeSeriesPlot_date_window[1])
+      subPeriod$end   <- as.Date(input$timeSeriesPlot_date_window[2])
+    }
+  })
+  #output$info <- renderText({paste("Period: ", subPeriod$start, "/", subPeriod$end, sep="")})
+  
   output$countryPlot <- renderPlot({
     
-    meanData <- dataInput()[, .(avg = mean(eval(parse(text=input$variableName)))), by = .(lon, lat)]
-    
+    if (is.null(subPeriod$start)) {
+      meanData <- dataInput()[, .(avg = mean(eval(parse(text=input$variableName)))), by = .(lon, lat)]
+    } else {
+      meanData <- dataInput()[time %in% seq.Date(subPeriod$start, subPeriod$end, by='day'), .(avg = mean(eval(parse(text=input$variableName)))), by = .(lon, lat)]
+    }
     basemap() +
       geom_tile(aes(x =lon, y = lat, fill = avg, group = NULL),
                 alpha=0.5,

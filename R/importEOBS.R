@@ -18,6 +18,7 @@ importEOBS <- function(variable, period, area, grid, na.rm=TRUE,
   return(data)
 }
 
+#' Checks whether the input to importEOBS is valid or not
 SanitizeInput <- function(variable, period, area, grid) {
   if (variable %in% c('tg_stderr', 'tn_stderr', 'tx_stderr', 'pp_stderr',
                       'rr_stderr')) {
@@ -110,7 +111,7 @@ getOpenDapValues = function(opendapURL, variableName, bbox, period){
 createDataTableFromNCDF <- function(variable, validValues) {
   dataFrame <- plyr::adply(validValues[[variable]], c(1,2,3))
   dataTable <- data.table(dataFrame)
-  dataTable[, time  := validValues$time[X3]]
+  dataTable[, time  := as.Date(validValues$time[X3])]
   dataTable[, year  := as.numeric(format(time, "%y"))]
   dataTable[, month := as.numeric(format(time, "%m"))]
   dataTable[, day   := as.numeric(format(time, "%d"))]
@@ -149,6 +150,7 @@ removeNAvalues <- function(data) {
   data[, pointID:=.GRP, by=key(data)]
 }
 
+#' To define the valid range 
 periodBoundaries <- function(time, period) {
   xts <- xts::xts(time, as.Date(time, origin="1950-01-01")) 
   interval <- range(as.numeric(xts[period]))
