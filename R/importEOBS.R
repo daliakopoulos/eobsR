@@ -1,20 +1,44 @@
+
 #' Imports EOBS data
-#' @param variable String from ('TG', 'TN', 'TX, ...) / TODO: vector 
-#' @param period Temporal object (should be only one temporal block)
-#' @param area Spatial object
-#' @param grid String from ('0.25', '0.5', 'R0.25', ...)
-#' @param removeNA Boolean indicating if rows with NA can be deleted / TODO: This has to be fine tuned
+#' @param variable String from ('tg', 'tn', 'tx, ...)
+#' @param period Either numeric, timeBased or ISO-8601 style (see package xts.)
+#' @param area Either SpatialPolygons or SpatialPolygonsDataFrame object (see
+#' package sp)
+#' @param grid String from ('0.25reg', '0.50reg', '0.25rot', '0.50rot')
+#' @param removeNA Boolean indicating if rows with NA can be deleted 
 #' @param download Boolean indicating whether to download
-#' @note Fixed file is loaded instead of OPeNDAP request, i.e. variable,
-#'  period, and grid are deprecated
+#' @export
 importEOBS <- function(variable, period, area, grid, na.rm=TRUE,
                        download=TRUE) {
-  #url <- 'http://opendap.knmi.nl/knmi/thredds/dodsC/e-obs_0.50regular/tg_0.50deg_reg_v12.0.nc'
-  url <- specifyURL(variable, grid)
+  SanitizeInput(variable, period, area, grid)
+  url  <- specifyURL(variable, grid)
   data <- getOpenDapValues(url, variable, sp::bbox(area), period)
   if ( !is.matrix(area) ) data <- removeOutsiders(data, area)
   if ( na.rm ) data <- removeNAvalues(data) 
   return(data)
+}
+
+#' Checks whether the input to importEOBS is valid or not
+SanitizeInput <- function(variable, period, area, grid) {
+  if (variable %in% c('tg_stderr', 'tn_stderr', 'tx_stderr', 'pp_stderr',
+                      'rr_stderr')) {
+    stop("Standard error of variables not yet implemented.")
+  }
+  else if (!variable %in% c('tg', 'tn', "tx", "pp", 'rr', 'tg_stderr', 'tn_stderr',
+                       'tx_stderr', 'pp_stderr', 'rr_stderr')) {
+    stop(paste("Variable", variable, "not known."))
+  }
+  tryCatch(xts::.parseISO8601(period),
+           warning = function(e) {stop()},
+           error = function(e) {
+             stop("Period should be either Numeric, timeBased or ISO-8601 style.")
+           })
+  if (!class(area) %in% c("SpatialPolygons","SpatialPolygonsDataFrame")) {
+    stop("Area should be of class SpatialPolygons or SpatialPolygonsDataFrame.")
+  }
+  if (!grid %in% c("0.25reg", "0.50reg", "0.25rot", "0.50rot")) {
+    stop("Grid should be specified correctly.")
+  }
 }
 
 #' Specifies the url based on the variableName and the grid
@@ -83,10 +107,11 @@ getOpenDapValues = function(opendapURL, variableName, bbox, period){
 
 #' Creates a data.table from the ncdf4 input
 #' Not for external use
+#' @import data.table
 createDataTableFromNCDF <- function(variable, validValues) {
   dataFrame <- plyr::adply(validValues[[variable]], c(1,2,3))
   dataTable <- data.table(dataFrame)
-  dataTable[, time  := validValues$time[X3]]
+  dataTable[, time  := as.Date(validValues$time[X3])]
   dataTable[, year  := as.numeric(format(time, "%y"))]
   dataTable[, month := as.numeric(format(time, "%m"))]
   dataTable[, day   := as.numeric(format(time, "%d"))]
@@ -125,6 +150,7 @@ removeNAvalues <- function(data) {
   data[, pointID:=.GRP, by=key(data)]
 }
 
+#' To define the valid range 
 periodBoundaries <- function(time, period) {
   xts <- xts::xts(time, as.Date(time, origin="1950-01-01")) 
   interval <- range(as.numeric(xts[period]))
