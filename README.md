@@ -2,7 +2,8 @@
 This package provides simple access to the EOBS data using OPeNDAP. Spatio-temporal subsetting allows for simple national analysis.
 
 ##Installation
-You can install this package from github using devtools:
+You can install this package from github using:
+
 devtools::install_github('MartinRoth/eobsR')
 
 ##Citation and acknowledgements
