@@ -74,4 +74,11 @@ shinyServer(function(input, output) {
       dySeries("V1", label=input$variableName)
   })
   
+  output$downloadData <- downloadHandler(
+    filename = function() { paste('Earthquakes', '.csv', sep='') },
+    content = function(file) {
+      write.csv2(dataInput(), file)
+    }
+  )
+  
 })
