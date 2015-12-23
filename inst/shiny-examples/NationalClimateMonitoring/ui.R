@@ -1,4 +1,5 @@
 library(shiny)
+library(dygraphs)
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
@@ -11,17 +12,20 @@ shinyUI(fluidPage(
     sidebarPanel(
       selectInput("variableName", "variable", list("tg", "tn", "tx", "pp", "rr"),
                   selected = "tg"),
-      selectInput("country", "Country", list("DE", "NL", "GBR"),
+      selectInput("country", "Country", list("BE", "DE", "GBR", "NL"),
                   selected = "NL"),
-      selectInput("period", "Year", list("2014", "2013", "2012"),
+      selectInput("period", "Year", as.list(paste(2015:1950)), #list("2014", "2013", "2012"),
                   selected = "2014"),
       selectInput("grid", "Grid", list("0.50reg", "0.25reg"),
-                  selected = "0.50reg")
+                  selected = "0.50reg")#,
+      #verbatimTextOutput("info")
     ),
     
     # Show a plot of the generated distribution
     mainPanel(
-      plotOutput("countryPlot")
+      plotOutput("countryPlot",
+                 click = "locationClick"),
+      dygraphOutput("timeSeriesPlot")
     )
   )
 ))
