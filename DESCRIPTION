@@ -22,6 +22,7 @@ Suggests:
     raster,
     shiny,
     dygraphs,
-    testthat
+    testthat,
+    geosphere
 VignetteBuilder: knitr
 RoxygenNote: 5.0.1

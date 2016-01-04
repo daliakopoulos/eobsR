@@ -1,5 +1,5 @@
-library(geosphere)
 library(shiny)
+#library(geosphere)
 library(ggplot2)
 library(dygraphs)
 
@@ -64,7 +64,7 @@ shinyServer(function(input, output) {
   observeEvent(input$locationClick, {
       lon <- input$locationClick$x
       lat <- input$locationClick$y
-      distancePoints <- uniquePoints()[, distGeo(c(V1, V2), c(lat, lon)), by=pointID]
+      distancePoints <- uniquePoints()[, geosphere::distGeo(c(V1, V2), c(lat, lon)), by=pointID]
       setkey(distancePoints, V1)
       selectedPointID$id <- distancePoints[1, pointID]
   })
