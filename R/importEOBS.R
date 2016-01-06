@@ -1,11 +1,10 @@
-
 #' Imports EOBS data
 #' @param variable String from ('tg', 'tn', 'tx, ...)
 #' @param period Either numeric, timeBased or ISO-8601 style (see package xts.)
 #' @param area Either SpatialPolygons or SpatialPolygonsDataFrame object (see
 #' package sp)
 #' @param grid String from ('0.25reg', '0.50reg', '0.25rot', '0.50rot')
-#' @param removeNA Boolean indicating if rows with NA can be deleted 
+#' @param na.rm Boolean indicating if rows with NA can be deleted 
 #' @param download Boolean indicating whether to download
 #' @export
 importEOBS <- function(variable, period, area, grid, na.rm=TRUE,
@@ -18,7 +17,11 @@ importEOBS <- function(variable, period, area, grid, na.rm=TRUE,
   return(data)
 }
 
-#' Checks whether the input to importEOBS is valid or not
+# Checks whether the input to importEOBS is valid or not
+# @param variable Variable name
+# @param period Period
+# @param area Area
+# @param grid Grid
 SanitizeInput <- function(variable, period, area, grid) {
   if (variable %in% c('tg_stderr', 'tn_stderr', 'tx_stderr', 'pp_stderr',
                       'rr_stderr')) {
@@ -41,7 +44,9 @@ SanitizeInput <- function(variable, period, area, grid) {
   }
 }
 
-#' Specifies the url based on the variableName and the grid
+# Specifies the url based on the variableName and the grid
+# @param variableName Variable name
+# @param grid Grid
 specifyURL <- function(variableName, grid) {
   url <- 'http://opendap.knmi.nl/knmi/thredds/dodsC/e-obs_'
   if (grid=="0.50reg") {
@@ -56,13 +61,13 @@ specifyURL <- function(variableName, grid) {
   return(url)
 }
 
-#' Accesses the OPeNDAB server
-#' @param opendapURL String
-#' @param variableName String which variable to get
-#' @param bbox Bounding box of spatial object
-#' @param period Time period
-#' @note This function is based on the script by Maarten Plieger
-#' https://publicwiki.deltares.nl/display/OET/OPeNDAP+subsetting+with+R
+# Accesses the OPeNDAB server
+# @param opendapURL String
+# @param variableName String which variable to get
+# @param bbox Bounding box of spatial object
+# @param period Time period
+# @note This function is based on the script by Maarten Plieger
+# https://publicwiki.deltares.nl/display/OET/OPeNDAP+subsetting+with+R
 getOpenDapValues = function(opendapURL, variableName, bbox, period){
   print(paste("Loading opendapURL",opendapURL));
   
@@ -105,9 +110,10 @@ getOpenDapValues = function(opendapURL, variableName, bbox, period){
   return(createDataTableFromNCDF(variableName, validValues))
 }
 
-#' Creates a data.table from the ncdf4 input
-#' Not for external use
-#' @import data.table
+# Creates a data.table from the ncdf4 input
+# Not for external use
+# @param variable Variable name
+# @param validValues Valid vlaues
 createDataTableFromNCDF <- function(variable, validValues) {
   dataFrame <- plyr::adply(validValues[[variable]], c(1,2,3))
   dataTable <- data.table(dataFrame)
@@ -126,8 +132,10 @@ createDataTableFromNCDF <- function(variable, validValues) {
   return(dataTable)
 }
 
-#' Removes points outside of the SpatialPolygons
-#' Not for external use
+# Removes points outside of the SpatialPolygons
+# Not for external use
+# @param data Data.table
+# @param area Valid area
 removeOutsiders <- function(data, area) {
   setkey(data, lon, lat)
   data[, pointID:=.GRP, by=key(data)]
@@ -141,8 +149,9 @@ removeOutsiders <- function(data, area) {
   return(data[, pointID:=.GRP, by=key(data)])
 }
 
-#' Removes all rows with NAs
-#' Not for external use
+# Removes all rows with NAs
+# Not for external use
+# @param data data.table
 removeNAvalues <- function(data) {
   # We don't check if time is NA (it should not) but date * 0 is not defined
   data <- data[complete.cases(data[,!"time", with=FALSE]*0)]
@@ -150,7 +159,9 @@ removeNAvalues <- function(data) {
   data[, pointID:=.GRP, by=key(data)]
 }
 
-#' To define the valid range 
+# To define the valid range 
+# @param time Time
+# @param period Period
 periodBoundaries <- function(time, period) {
   xts <- xts::xts(time, as.Date(time, origin="1950-01-01")) 
   interval <- range(as.numeric(xts[period]))

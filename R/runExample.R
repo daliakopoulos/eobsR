@@ -1,3 +1,4 @@
+#' Runs the shiny example in a browser
 #' @export
 runExample <- function() {
   appDir <- system.file("shiny-examples", "NationalClimateMonitoring", package = "eobsR")

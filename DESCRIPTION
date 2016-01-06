@@ -15,11 +15,13 @@ Imports:
     ncdf4,
     sp,
     mapproj,
+    plyr,
     xts
 LinkingTo: Rcpp
 Suggests: 
     knitr,
     raster,
+    ggplot2,
     shiny,
     dygraphs,
     testthat,
