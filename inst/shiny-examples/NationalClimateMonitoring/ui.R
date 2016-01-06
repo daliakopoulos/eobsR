@@ -17,7 +17,8 @@ shinyUI(fluidPage(
       selectInput("period", "Year", as.list(paste(2015:1950)), #list("2014", "2013", "2012"),
                   selected = "2014"),
       selectInput("grid", "Grid", list("0.50reg", "0.25reg"),
-                  selected = "0.50reg")#,
+                  selected = "0.50reg"),
+      downloadButton('downloadData', 'Download')#,
       #verbatimTextOutput("info")
     ),
     
