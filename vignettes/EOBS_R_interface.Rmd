@@ -17,7 +17,6 @@ The idea is that one can do a national analysis using the following steps:
 - load a country shape file using database ...
 - load the corresponding data with eobsR
 - do the analysis, e.g., using rClimDex
-- put this into a shiny app (with slider for index and country)
 
 ```{r}
 period <- '2014'

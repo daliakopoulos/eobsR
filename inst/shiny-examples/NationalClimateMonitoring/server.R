@@ -3,6 +3,12 @@ library(shiny)
 library(ggplot2)
 library(dygraphs)
 
+NameDownload <- function(x) {
+  name <- paste(x$period, x$country, x$variableName, x$grid, sep="_")
+  name <- paste(name, '.csv', sep="")
+  return(name)
+}
+
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
   
@@ -75,7 +81,7 @@ shinyServer(function(input, output) {
   })
   
   output$downloadData <- downloadHandler(
-    filename = function() { paste('Earthquakes', '.csv', sep='') },
+    filename = function() { NameDownload(input)},
     content = function(file) {
       write.csv2(dataInput(), file)
     }

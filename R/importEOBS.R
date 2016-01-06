@@ -112,7 +112,7 @@ createDataTableFromNCDF <- function(variable, validValues) {
   dataFrame <- plyr::adply(validValues[[variable]], c(1,2,3))
   dataTable <- data.table(dataFrame)
   dataTable[, time  := as.Date(validValues$time[X3])]
-  dataTable[, year  := as.numeric(format(time, "%y"))]
+  dataTable[, year  := as.numeric(format(time, "%Y"))]
   dataTable[, month := as.numeric(format(time, "%m"))]
   dataTable[, day   := as.numeric(format(time, "%d"))]
   dataTable[, lat := validValues$lat[X2]]
