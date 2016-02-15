@@ -61,6 +61,15 @@ specifyURL <- function(variableName, grid) {
   return(url)
 }
 
+# Get the EOBS netcdf dimensions
+GetEobsDimensions <- function(ncdfConnection) {
+  values <- list()
+  values$lat         <- ncdf4::ncvar_get(ncdfConnection, varid = 'latitude')
+  values$lon         <- ncdf4::ncvar_get(ncdfConnection, varid = 'longitude')
+  values$time        <- ncdf4::ncvar_get(ncdfConnection, varid = 'time')
+  return(values)
+}
+
 # Accesses the OPeNDAB server
 # @param opendapURL String
 # @param variableName String which variable to get
@@ -75,10 +84,7 @@ getOpenDapValues = function(opendapURL, variableName, bbox, period){
   dataset = ncdf4::nc_open(opendapURL)
   
   # Get lon and lat variables, which are the dimensions of depth.
-  values <- list()
-  values$lat         <- ncdf4::ncvar_get(dataset, varid = 'latitude',  start = 1, count = -1)
-  values$lon         <- ncdf4::ncvar_get(dataset, varid = 'longitude', start = 1, count = -1)
-  values$time        <- ncdf4::ncvar_get(dataset, varid = 'time',      start = 1, count = -1)
+  values <- GetEobsDimensions(dataset) 
   
   # Determine the valid range of the dimensions based on the period and
   # the bounding box
