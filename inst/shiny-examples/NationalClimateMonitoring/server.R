@@ -1,7 +1,15 @@
-library(geosphere)
 library(shiny)
+#library(geosphere)
+library(doParallel)
+registerDoParallel()
 library(ggplot2)
 library(dygraphs)
+
+NameDownload <- function(x) {
+  name <- paste(x$period, x$country, x$variableName, x$grid, sep="_")
+  name <- paste(name, '.csv', sep="")
+  return(name)
+}
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
@@ -64,7 +72,7 @@ shinyServer(function(input, output) {
   observeEvent(input$locationClick, {
       lon <- input$locationClick$x
       lat <- input$locationClick$y
-      distancePoints <- uniquePoints()[, distGeo(c(V1, V2), c(lat, lon)), by=pointID]
+      distancePoints <- uniquePoints()[, geosphere::distGeo(c(V1, V2), c(lat, lon)), by=pointID]
       setkey(distancePoints, V1)
       selectedPointID$id <- distancePoints[1, pointID]
   })
@@ -73,5 +81,12 @@ shinyServer(function(input, output) {
     dygraph(xts::xts(dataInput()[pointID==selectedPointID$id, eval(parse(text=input$variableName))], dataInput()[pointID==selectedPointID$id, time])) %>% 
       dySeries("V1", label=input$variableName)
   })
+  
+  output$downloadData <- downloadHandler(
+    filename = function() { NameDownload(input)},
+    content = function(file) {
+      write.csv2(dataInput(), file)
+    }
+  )
   
 })
