@@ -13,6 +13,7 @@ Depends:
 Imports: 
     Rcpp (>= 0.11.6),
     ncdf4,
+    reshape2,
     sp,
     mapproj,
     foreach,

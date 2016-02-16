@@ -143,7 +143,7 @@ getOpenDapValues = function(opendapURL, variableName, bbox, period){
   
   # Close the data set and return data.table created from the valid values
   ncdf4::nc_close(dataset)
-  return(CreateDataTableFromNCDF(variableName, validValues))
+  return(CreateDataTableMelt(variableName, validValues))
 }
 
 # Creates a data.table from the ncdf4 input
@@ -164,6 +164,28 @@ CreateDataTableFromNCDF <- function(variable, validValues) {
     }
   }
   #result <- removeNAvalues(result) # For this function time has to be time ...
+  result[, year  := as.numeric(format(time, "%Y"))]
+  result[, month := as.numeric(format(time, "%m"))]
+  result[, day   := as.numeric(format(time, "%d"))]
+  setcolorder(result, c("time", "year", "month", "day", "lat", "lon", "value"))
+  setnames(result, "value", paste(variable))
+  return(result)
+}
+
+CreateDataTableMelt <- function(variable, validValues) {
+  result <- data.table(reshape2::melt(validValues[[variable]], varnames=c("lon", "lat", "time")))
+  setkey(result, lon, lat)
+  result[, pointID:=.GRP, by = key(result)]
+  setkey(result, pointID)
+  index <- result[, !all(is.na(value)), by = pointID][V1==TRUE, pointID]
+  result <- result[pointID %in% index, ]
+  result[, pointID := NULL]
+  #setnames(result, "Var1", "lon")
+  #setnames(result, "Var2", "lat")
+  #setnames(result, "Var3", "time")
+  result[, lon := validValues$lon[lon]]
+  result[, lat := validValues$lat[lat]]
+  result[, time := validValues$time[time]]
   result[, year  := as.numeric(format(time, "%Y"))]
   result[, month := as.numeric(format(time, "%m"))]
   result[, day   := as.numeric(format(time, "%d"))]

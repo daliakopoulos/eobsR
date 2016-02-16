@@ -1,7 +1,7 @@
 library(shiny)
 #library(geosphere)
 library(doParallel)
-registerDoParallel()
+registerDoParallel(8)
 library(ggplot2)
 library(dygraphs)
 
