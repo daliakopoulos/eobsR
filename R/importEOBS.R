@@ -1,6 +1,6 @@
 #' Imports EOBS data
 #' @param variable String from ('tg', 'tn', 'tx, ...)
-#' @param period Either numeric, timeBased or ISO-8601 style (see package xts.)
+#' @param period Either numeric, timeBased or ISO-8601 style (see \code{\link[xts]{.subset.xts}})
 #' @param area Either SpatialPolygons or SpatialPolygonsDataFrame object (see
 #' package sp)
 #' @param grid String from ('0.25reg', '0.50reg', '0.25rot', '0.50rot')
@@ -16,6 +16,36 @@ importEOBS <- function(variable, period, area, grid, na.rm=TRUE,
   if ( na.rm ) data <- removeNAvalues(data) 
   return(data)
 }
+
+#' Import EOBS data from local file
+#' @note Should be merged with \code{\link{importEOBS}}
+#' @inheritParams importEOBS
+#' @param filename String containing the path to the ncdf file
+#' @export
+LocalImportEOBS <- function(variable, filename, period = NULL, area = NULL,
+                            na.rm=TRUE) {
+  # Local sanitizing
+  data <- GetEOBS(filename, variable, area, period, na.rm)
+  return(data)
+}
+
+# TODO: Merge with getOpenDapValues 
+# add bbox and period than this should be possible
+GetEOBS <- function(filename, variable, area, period, na.rm) {
+  if(!is.null(area)) bbox <- sp::bbox(area)
+  ncdfConnection          <- ncdf4::nc_open(filename)
+  validValues             <- GetEobsDimensions(ncdfConnection)
+  validValues$time        <- as.Date(validValues$time, origin="1950-01-01")
+  validValues[[variable]] <- ncdf4::ncvar_get(ncdfConnection, variable)
+  ncdf4::nc_close(ncdfConnection)
+  result <- CreateDataTableFromNCDF(variable, validValues)
+  if ( !is.null(area) & !is.matrix(area)) {
+    result <- removeOutsiders(result, area)
+  }
+  if ( na.rm ) result <- removeNAvalues(result) 
+  return(result)
+}
+
 
 # Checks whether the input to importEOBS is valid or not
 # @param variable Variable name
@@ -113,29 +143,33 @@ getOpenDapValues = function(opendapURL, variableName, bbox, period){
   
   # Close the data set and return data.table created from the valid values
   ncdf4::nc_close(dataset)
-  return(createDataTableFromNCDF(variableName, validValues))
+  return(CreateDataTableFromNCDF(variableName, validValues))
 }
 
 # Creates a data.table from the ncdf4 input
 # Not for external use
 # @param variable Variable name
 # @param validValues Valid vlaues
-createDataTableFromNCDF <- function(variable, validValues) {
-  dataFrame <- plyr::adply(validValues[[variable]], c(1,2,3))
-  dataTable <- data.table(dataFrame)
-  dataTable[, time  := as.Date(validValues$time[X3])]
-  dataTable[, year  := as.numeric(format(time, "%Y"))]
-  dataTable[, month := as.numeric(format(time, "%m"))]
-  dataTable[, day   := as.numeric(format(time, "%d"))]
-  dataTable[, lat := validValues$lat[X2]]
-  dataTable[, lon := validValues$lon[X1]]
-  dataTable[, paste(variable) := V1]
-  dataTable[, X1 := NULL]
-  dataTable[, X2 := NULL]
-  dataTable[, X3 := NULL]
-  dataTable[, V1 := NULL]
-  #setkey(list(lat, lon, time))
-  return(dataTable)
+#' @import foreach
+CreateDataTableFromNCDF <- function(variable, validValues) {
+  result <- foreach(i=seq.int(1, length(validValues$lon)), .combine = "rbind") %dopar% { 
+    foreach(j = seq.int(1, length(validValues$lat)), .combine = "rbind") %do% {
+      if (all(is.na(validValues[[variable]][i, j, ]))) {}
+      else {
+        data.table(lon   = validValues$lon[i],
+                   lat   = validValues$lat[j],
+                   time  = validValues$time,
+                   value = validValues[[variable]][i, j, ])
+      }
+    }
+  }
+  #result <- removeNAvalues(result) # For this function time has to be time ...
+  result[, year  := as.numeric(format(time, "%Y"))]
+  result[, month := as.numeric(format(time, "%m"))]
+  result[, day   := as.numeric(format(time, "%d"))]
+  setcolorder(result, c("time", "year", "month", "day", "lat", "lon", "value"))
+  setnames(result, "value", paste(variable))
+  return(result)
 }
 
 # Removes points outside of the SpatialPolygons

@@ -15,7 +15,7 @@ Imports:
     ncdf4,
     sp,
     mapproj,
-    plyr,
+    foreach,
     xts
 LinkingTo: Rcpp
 Suggests: 
@@ -25,6 +25,7 @@ Suggests:
     shiny,
     dygraphs,
     testthat,
+    doParallel,
     geosphere
 VignetteBuilder: knitr
 RoxygenNote: 5.0.1
