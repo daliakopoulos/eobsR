@@ -14,6 +14,10 @@ importEOBS <- function(variable, period, area, grid, na.rm=TRUE,
   data <- getOpenDapValues(url, variable, sp::bbox(area), period)
   if ( !is.matrix(area) ) data <- removeOutsiders(data, area)
   if ( na.rm ) data <- removeNAvalues(data) 
+  data[, year  := as.numeric(format(time, "%Y"))]
+  data[, month := as.numeric(format(time, "%m"))]
+  data[, day   := as.numeric(format(time, "%d"))]
+  setcolorder(data, c("time", "year", "month", "day", "lat", "lon", variable, "pointID"))
   return(data)
 }
 
@@ -38,11 +42,15 @@ GetEOBS <- function(filename, variable, area, period, na.rm) {
   validValues$time        <- as.Date(validValues$time, origin="1950-01-01")
   validValues[[variable]] <- ncdf4::ncvar_get(ncdfConnection, variable)
   ncdf4::nc_close(ncdfConnection)
-  result <- CreateDataTableFromNCDF(variable, validValues)
+  result <- CreateDataTableMelt(variable, validValues)
   if ( !is.null(area) & !is.matrix(area)) {
     result <- removeOutsiders(result, area)
   }
   if ( na.rm ) result <- removeNAvalues(result) 
+  result[, year  := as.numeric(format(time, "%Y"))]
+  result[, month := as.numeric(format(time, "%m"))]
+  result[, day   := as.numeric(format(time, "%d"))]
+  setcolorder(result, c("time", "year", "month", "day", "lat", "lon", variable, "pointID"))
   return(result)
 }
 
@@ -164,16 +172,18 @@ CreateDataTableFromNCDF <- function(variable, validValues) {
     }
   }
   #result <- removeNAvalues(result) # For this function time has to be time ...
-  result[, year  := as.numeric(format(time, "%Y"))]
-  result[, month := as.numeric(format(time, "%m"))]
-  result[, day   := as.numeric(format(time, "%d"))]
-  setcolorder(result, c("time", "year", "month", "day", "lat", "lon", "value"))
+  #result[, year  := as.numeric(format(time, "%Y"))]
+  #result[, month := as.numeric(format(time, "%m"))]
+  #result[, day   := as.numeric(format(time, "%d"))]
+  #setcolorder(result, c("time", "year", "month", "day", "lat", "lon", "value"))
   setnames(result, "value", paste(variable))
   return(result)
 }
 
 CreateDataTableMelt <- function(variable, validValues) {
-  result <- data.table(reshape2::melt(validValues[[variable]], varnames=c("lon", "lat", "time")))
+  meltedValues <- reshape2::melt(validValues[[variable]],
+                                 varnames=c("lon", "lat", "time"))
+  result <- as.data.table(meltedValues)
   setkey(result, lon, lat)
   result[, pointID:=.GRP, by = key(result)]
   setkey(result, pointID)
@@ -186,10 +196,10 @@ CreateDataTableMelt <- function(variable, validValues) {
   result[, lon := validValues$lon[lon]]
   result[, lat := validValues$lat[lat]]
   result[, time := validValues$time[time]]
-  result[, year  := as.numeric(format(time, "%Y"))]
-  result[, month := as.numeric(format(time, "%m"))]
-  result[, day   := as.numeric(format(time, "%d"))]
-  setcolorder(result, c("time", "year", "month", "day", "lat", "lon", "value"))
+  #result[, year  := as.numeric(format(time, "%Y"))]
+  #result[, month := as.numeric(format(time, "%m"))]
+  #result[, day   := as.numeric(format(time, "%d"))]
+  #setcolorder(result, c("time", "year", "month", "day", "lat", "lon", "value"))
   setnames(result, "value", paste(variable))
   return(result)
 }
