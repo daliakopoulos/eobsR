@@ -11,7 +11,8 @@ importEOBS <- function(variable, period, area, grid, na.rm=TRUE,
                        download=TRUE) {
   SanitizeInput(variable, period, area, grid)
   url  <- specifyURL(variable, grid)
-  data <- getOpenDapValues(url, variable, sp::bbox(area), period)
+  # FIXME: Here also GetEOBS
+  data <- getOpenDapValues(url, variable, sp::bbox(area), period) 
   if ( !is.matrix(area) ) data <- removeOutsiders(data, area)
   if ( na.rm ) data <- removeNAvalues(data) 
   data[, year  := as.numeric(format(time, "%Y"))]
@@ -33,6 +34,7 @@ LocalImportEOBS <- function(variable, filename, period = NULL, area = NULL,
   return(data)
 }
 
+# FIXME: getOpenDapValues does a lose boundary cut
 # TODO: Merge with getOpenDapValues 
 # add bbox and period than this should be possible
 GetEOBS <- function(filename, variable, area, period, na.rm) {
@@ -89,11 +91,11 @@ specifyURL <- function(variableName, grid) {
   url <- 'http://opendap.knmi.nl/knmi/thredds/dodsC/e-obs_'
   if (grid=="0.50reg") {
     url <- paste(url, '0.50regular/', sep="")
-    ending <- '_0.50deg_reg_v12.0.nc'
+    ending <- '_0.50deg_reg_v14.0.nc'
   }
   if (grid=="0.25reg") {
     url <- paste(url, '0.25regular/', sep="")
-    ending <- '_0.25deg_reg_v12.0.nc'
+    ending <- '_0.25deg_reg_v14.0.nc'
   }
   url <- paste(url, variableName, ending, sep="")
   return(url)
