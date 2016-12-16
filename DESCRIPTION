@@ -29,5 +29,6 @@ Suggests:
     doParallel,
     geosphere,
     covr
+SystemRequirements: netcdf library version 4.1 or later
 VignetteBuilder: knitr
 RoxygenNote: 5.0.1
