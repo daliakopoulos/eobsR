@@ -1,8 +1,9 @@
 #' Imports EOBS data
 #' @param variable String from ('tg', 'tn', 'tx, ...)
-#' @param period Either numeric, timeBased or ISO-8601 style (see \code{\link[xts]{.subset.xts}})
+#' @param period Either numeric, timeBased or ISO-8601 style 
+#'  (see \code{\link[xts]{.subset.xts}})
 #' @param area Either SpatialPolygons or SpatialPolygonsDataFrame object (see
-#' package sp)
+#'  package sp)
 #' @param grid String from ('0.25reg', '0.50reg', '0.25rot', '0.50rot')
 #' @param na.rm Boolean indicating if rows with NA can be deleted 
 #' @param download Boolean indicating whether to download
@@ -11,14 +12,8 @@ importEOBS <- function(variable, period, area, grid, na.rm=TRUE,
                        download=TRUE) {
   SanitizeInput(variable, period, area, grid)
   url  <- specifyURL(variable, grid)
-  # FIXME: Here also GetEOBS
-  data <- getOpenDapValues(url, variable, sp::bbox(area), period) 
-  if ( !is.matrix(area) ) data <- removeOutsiders(data, area)
-  if ( na.rm ) data <- removeNAvalues(data) 
-  data[, year  := as.numeric(format(time, "%Y"))]
-  data[, month := as.numeric(format(time, "%m"))]
-  data[, day   := as.numeric(format(time, "%d"))]
-  setcolorder(data, c("time", "year", "month", "day", "lat", "lon", variable, "pointID"))
+  message(paste("Loading opendapURL", url))
+  data <- GetEOBS(url, variable, area, period, na.rm)
   return(data)
 }
 
@@ -34,17 +29,11 @@ LocalImportEOBS <- function(variable, filename, period = NULL, area = NULL,
   return(data)
 }
 
-# FIXME: getOpenDapValues does a lose boundary cut
-# TODO: Merge with getOpenDapValues 
-# add bbox and period than this should be possible
 GetEOBS <- function(filename, variable, area, period, na.rm) {
-  if(!is.null(area)) bbox <- sp::bbox(area)
-  ncdfConnection          <- ncdf4::nc_open(filename)
-  validValues             <- GetEobsDimensions(ncdfConnection)
-  validValues$time        <- as.Date(validValues$time, origin="1950-01-01")
-  validValues[[variable]] <- ncdf4::ncvar_get(ncdfConnection, variable)
-  ncdf4::nc_close(ncdfConnection)
-  result <- CreateDataTableMelt(variable, validValues)
+  
+  result <- GetEobsBbox(filename, variable, sp::bbox(area), period) 
+  result <- CreateDataTableMelt(variable, result)
+  
   if ( !is.null(area) & !is.matrix(area)) {
     result <- removeOutsiders(result, area)
   }
@@ -111,17 +100,16 @@ GetEobsDimensions <- function(ncdfConnection) {
 }
 
 # Accesses the OPeNDAB server
-# @param opendapURL String
+# @param filename String either url or local file
 # @param variableName String which variable to get
 # @param bbox Bounding box of spatial object
 # @param period Time period
 # @note This function is based on the script by Maarten Plieger
 # https://publicwiki.deltares.nl/display/OET/OPeNDAP+subsetting+with+R
-getOpenDapValues = function(opendapURL, variableName, bbox, period){
-  print(paste("Loading opendapURL",opendapURL));
+GetEobsBbox = function(filename, variableName, bbox, period){
   
   # Open the dataset
-  dataset = ncdf4::nc_open(opendapURL)
+  dataset = ncdf4::nc_open(filename)
   
   # Get lon and lat variables, which are the dimensions of depth.
   values <- GetEobsDimensions(dataset) 
@@ -129,7 +117,8 @@ getOpenDapValues = function(opendapURL, variableName, bbox, period){
   # Determine the valid range of the dimensions based on the period and
   # the bounding box
   validRange <- list()
-  validRange$time <- which(findInterval(values$time, periodBoundaries(values$time, period))==1)  
+  validRange$time <- which(findInterval(values$time, 
+                                        periodBoundaries(values$time, period))==1)  
   validRange$lat  <- which(findInterval(values$lat, bbox[2,])==1)
   validRange$lon  <- which(findInterval(values$lon, bbox[1,])==1)
   
@@ -153,33 +142,7 @@ getOpenDapValues = function(opendapURL, variableName, bbox, period){
   
   # Close the data set and return data.table created from the valid values
   ncdf4::nc_close(dataset)
-  return(CreateDataTableMelt(variableName, validValues))
-}
-
-# Creates a data.table from the ncdf4 input
-# Not for external use
-# @param variable Variable name
-# @param validValues Valid vlaues
-#' @import foreach
-CreateDataTableFromNCDF <- function(variable, validValues) {
-  result <- foreach(i=seq.int(1, length(validValues$lon)), .combine = "rbind") %dopar% { 
-    foreach(j = seq.int(1, length(validValues$lat)), .combine = "rbind") %do% {
-      if (all(is.na(validValues[[variable]][i, j, ]))) {}
-      else {
-        data.table(lon   = validValues$lon[i],
-                   lat   = validValues$lat[j],
-                   time  = validValues$time,
-                   value = validValues[[variable]][i, j, ])
-      }
-    }
-  }
-  #result <- removeNAvalues(result) # For this function time has to be time ...
-  #result[, year  := as.numeric(format(time, "%Y"))]
-  #result[, month := as.numeric(format(time, "%m"))]
-  #result[, day   := as.numeric(format(time, "%d"))]
-  #setcolorder(result, c("time", "year", "month", "day", "lat", "lon", "value"))
-  setnames(result, "value", paste(variable))
-  return(result)
+  return(validValues) 
 }
 
 CreateDataTableMelt <- function(variable, validValues) {
@@ -192,16 +155,9 @@ CreateDataTableMelt <- function(variable, validValues) {
   index <- result[, !all(is.na(value)), by = pointID][V1==TRUE, pointID]
   result <- result[pointID %in% index, ]
   result[, pointID := NULL]
-  #setnames(result, "Var1", "lon")
-  #setnames(result, "Var2", "lat")
-  #setnames(result, "Var3", "time")
   result[, lon := validValues$lon[lon]]
   result[, lat := validValues$lat[lat]]
   result[, time := validValues$time[time]]
-  #result[, year  := as.numeric(format(time, "%Y"))]
-  #result[, month := as.numeric(format(time, "%m"))]
-  #result[, day   := as.numeric(format(time, "%d"))]
-  #setcolorder(result, c("time", "year", "month", "day", "lat", "lon", "value"))
   setnames(result, "value", paste(variable))
   return(result)
 }

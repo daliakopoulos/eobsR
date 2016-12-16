@@ -9,7 +9,8 @@ importEOBS(variable, period, area, grid, na.rm = TRUE, download = TRUE)
 \arguments{
 \item{variable}{String from ('tg', 'tn', 'tx, ...)}
 
-\item{period}{Either numeric, timeBased or ISO-8601 style (see \code{\link[xts]{.subset.xts}})}
+\item{period}{Either numeric, timeBased or ISO-8601 style 
+(see \code{\link[xts]{.subset.xts}})}
 
 \item{area}{Either SpatialPolygons or SpatialPolygonsDataFrame object (see
 package sp)}
