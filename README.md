@@ -1,7 +1,7 @@
 # eobsR
 [![Travis-CI Build Status](https://travis-ci.org/MartinRoth/eobsR.svg?branch=master)](https://travis-ci.org/MartinRoth/eobsR)
-This package provides simple access to the EOBS data using OPeNDAP. Spatio-temporal subsetting allows for simple national analysis.
 [![Coverage Status](https://img.shields.io/codecov/c/github/MartinRoth/eobsR/master.svg)](https://codecov.io/github/MartinRoth/eobsR?branch=master)
+This package provides simple access to the EOBS data using OPeNDAP. Spatio-temporal subsetting allows for simple national analysis.
 
 
 ##Installation
