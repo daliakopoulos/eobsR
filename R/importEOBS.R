@@ -146,9 +146,16 @@ GetEobsBbox = function(filename, variableName, bbox, period){
 }
 
 CreateDataTableMelt <- function(variable, validValues) {
-  meltedValues <- reshape2::melt(validValues[[variable]],
-                                 varnames=c("lon", "lat", "time"))
-  result <- as.data.table(meltedValues)
+  if (length(validValues$time) > 1) {
+    meltedValues <- reshape2::melt(validValues[[variable]],
+                                   varnames=c("lon", "lat", "time"))
+    result <- as.data.table(meltedValues) 
+  } else {
+    meltedValues <- reshape2::melt(validValues[[variable]],
+                                   varnames=c("lon", "lat"))
+    result <- as.data.table(meltedValues) 
+    result[, time := 1]
+  }
   setkey(result, lon, lat)
   result[, pointID:=.GRP, by = key(result)]
   setkey(result, pointID)
