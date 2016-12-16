@@ -1,30 +1,34 @@
 Package: eobsR
 Type: Package
 Title: Access to EOBS
-Version: 0.2.4
-Date: 2016-01-22
+Version: 0.2.6
+Date: 2016-12-09
 Author: Martin Roth
 Maintainer: Martin Roth <roth@knmi.nl>
 Description: This package provides simple access to the EOBS data using OPeNDAP.
     Spatio-temporal subsetting allows for simple national analysis.
 License: GPL (>= 2)
-Depends: 
+Depends:
     data.table
-Imports: 
+Imports:
     Rcpp (>= 0.11.6),
     ncdf4,
+    reshape2,
     sp,
     mapproj,
-    plyr,
+    foreach,
     xts
 LinkingTo: Rcpp
-Suggests: 
+Suggests:
     knitr,
     raster,
     ggplot2,
     shiny,
     dygraphs,
     testthat,
-    geosphere
+    doParallel,
+    geosphere,
+    covr
+SystemRequirements: netcdf library version 4.1 or later
 VignetteBuilder: knitr
 RoxygenNote: 5.0.1
