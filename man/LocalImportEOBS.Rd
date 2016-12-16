@@ -12,7 +12,8 @@ LocalImportEOBS(variable, filename, period = NULL, area = NULL,
 
 \item{filename}{String containing the path to the ncdf file}
 
-\item{period}{Either numeric, timeBased or ISO-8601 style (see \code{\link[xts]{.subset.xts}})}
+\item{period}{Either numeric, timeBased or ISO-8601 style 
+(see \code{\link[xts]{.subset.xts}})}
 
 \item{area}{Either SpatialPolygons or SpatialPolygonsDataFrame object (see
 package sp)}
