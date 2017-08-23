@@ -85,17 +85,18 @@ specifyURL <- function(variableName, grid, year) {
   url <- 'http://eca.knmi.nl/download/ensembles/data/Grid_'
   if (grid=="0.50reg") {
     url <- paste(url, '0.50deg_reg/', sep="")
-    ending <- '_0.50deg_reg_v15.0.nc'
+    resolution <- '_0.50deg_reg_'
   }
   if (grid=="0.25reg") {
     url <- paste(url, '0.25deg_reg/', sep="")
-    ending <- '_0.25deg_reg_v15.0.nc'
+    resolution <- '_0.25deg_reg_'
   }
   if (grid=="0.22reg") {
     url <- paste(url, '0.22deg_reg/', sep="")
-    ending <- '_0.22deg_reg_v15.0.nc'
+    resolution <- '_0.22deg_reg_'
   }
-  url <- paste(url, variableName, year, ending, sep="")
+  ending <- '_v15.0.nc.gz'
+  url <- paste(url, variableName, resolution, year, ending, sep="")
   return(url)
 }
 
