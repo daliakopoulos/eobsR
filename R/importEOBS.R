@@ -123,7 +123,7 @@ GetEobsBbox = function(filename, variableName, bbox, period){
   if (!file.exists(zippedfile)) download.file(filename, zippedfile)
   unzippedfile <- substr(zippedfile, 1, nchar(zippedfile)-3) 
   if (!file.exists(unzippedfile)){
-    R.utils::gunzip(bzfil, destname = unzippedfile, overwrite = FALSE)
+    R.utils::gunzip(zippedfile, destname = unzippedfile, overwrite = FALSE)
   }
   
   dataset = ncdf4::nc_open(unzippedfile)
