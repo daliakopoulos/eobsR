@@ -77,7 +77,7 @@ SanitizeInput <- function(variable, period, area, grid) {
 # @param variableName Variable name
 # @param grid Grid
 specifyURL <- function(variableName, grid) {
-  url <- 'http://opendap.knmi.nl/knmi/thredds/dodsC/e-obs_'
+  url <- 'http://eca.knmi.nl/download/ensembles/data/Grid_'
   if (grid=="0.50reg") {
     url <- paste(url, '0.50regular/', sep="")
     ending <- '_0.50deg_reg_v14.0.nc'
