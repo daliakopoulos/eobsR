@@ -11,7 +11,7 @@
 importEOBS <- function(variable, period, area, grid, na.rm=TRUE,
                        download=TRUE) {
   SanitizeInput(variable, period, area, grid)
-  url  <- specifyURL(variable, grid)
+  url  <- specifyURL(variable, grid, period)
   message(paste("Loading opendapURL", url))
   data <- GetEOBS(url, variable, area, period, na.rm)
   return(data)
@@ -76,7 +76,12 @@ SanitizeInput <- function(variable, period, area, grid) {
 # Specifies the url based on the variableName and the grid
 # @param variableName Variable name
 # @param grid Grid
-specifyURL <- function(variableName, grid) {
+specifyURL <- function(variableName, grid, year) {
+  if (year >= 1950 && year <=1964) {year <- "1950-1964"}
+  if (year >= 1965 && year <=1979) {year <- "1950-1964"}
+  if (year >= 1980 && year <=1994) {year <- "1950-1964"}
+  if (year >= 1995 && year <=2016) {year <- "1950-1964"}
+  
   url <- 'http://eca.knmi.nl/download/ensembles/data/Grid_'
   if (grid=="0.50reg") {
     url <- paste(url, '0.50deg_reg/', sep="")
@@ -90,7 +95,7 @@ specifyURL <- function(variableName, grid) {
     url <- paste(url, '0.22deg_reg/', sep="")
     ending <- '_0.22deg_reg_v15.0.nc'
   }
-  url <- paste(url, variableName, ending, sep="")
+  url <- paste(url, variableName, year, ending, sep="")
   return(url)
 }
 
