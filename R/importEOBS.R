@@ -119,7 +119,8 @@ GetEobsDimensions <- function(ncdfConnection) {
 GetEobsBbox = function(filename, variableName, bbox, period){
   
   # Open the dataset
-  dataset = ncdf4::nc_open(gzfile(filename))
+  con <- gzcon(url(filename))
+  dataset = ncdf4::nc_open(con)
   
   # Get lon and lat variables, which are the dimensions of depth.
   values <- GetEobsDimensions(dataset) 
