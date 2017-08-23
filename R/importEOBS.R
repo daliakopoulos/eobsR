@@ -78,9 +78,9 @@ SanitizeInput <- function(variable, period, area, grid) {
 # @param grid Grid
 specifyURL <- function(variableName, grid, year) {
   if (year >= 1950 && year <=1964) {year <- "1950-1964"}
-  if (year >= 1965 && year <=1979) {year <- "1950-1964"}
-  if (year >= 1980 && year <=1994) {year <- "1950-1964"}
-  if (year >= 1995 && year <=2016) {year <- "1950-1964"}
+  if (year >= 1965 && year <=1979) {year <- "1965-1979"}
+  if (year >= 1980 && year <=1994) {year <- "1980-1994"}
+  if (year >= 1995 && year <=2016) {year <- "1995-2016"}
   
   url <- 'http://eca.knmi.nl/download/ensembles/data/Grid_'
   if (grid=="0.50reg") {
@@ -214,6 +214,12 @@ removeNAvalues <- function(data) {
 # @param time Time
 # @param period Period
 periodBoundaries <- function(time, period) {
+  
+  if (period >= 1950 && period <=1964) {origin <- "1950-01-01"}
+  if (period >= 1965 && period <=1979) {origin <- "1965-01-01"}
+  if (period >= 1980 && period <=1994) {origin <- "1980-01-01"}
+  if (period >= 1995 && period <=2016) {origin <- "1995-01-01"}
+    
   xts <- xts::xts(time, as.Date(time, origin="1950-01-01")) 
   interval <- range(as.numeric(xts[period]))
   interval[2] <- interval[2] + 1
