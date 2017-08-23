@@ -79,12 +79,12 @@ SanitizeInput <- function(variable, period, area, grid) {
 specifyURL <- function(variableName, grid) {
   url <- 'http://eca.knmi.nl/download/ensembles/data/Grid_'
   if (grid=="0.50reg") {
-    url <- paste(url, '0.50regular/', sep="")
-    ending <- '_0.50deg_reg_v14.0.nc'
+    url <- paste(url, '0.50deg_reg/', sep="")
+    ending <- '_0.50deg_reg_v15.0.nc'
   }
   if (grid=="0.25reg") {
-    url <- paste(url, '0.25regular/', sep="")
-    ending <- '_0.25deg_reg_v14.0.nc'
+    url <- paste(url, '0.25deg_reg/', sep="")
+    ending <- '_0.25deg_reg_v15.0.nc'
   }
   url <- paste(url, variableName, ending, sep="")
   return(url)
