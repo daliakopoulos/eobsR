@@ -121,7 +121,7 @@ GetEobsBbox = function(filename, variableName, bbox, period){
   # Open the dataset
   bzfil <- basename(filename)
   if (!file.exists(bzfil)) download.file(filename, bzfil)
-  gunzip(bzfil, destname = 'temp.nc', overwrite = FALSE)
+  R.utils::gunzip(bzfil, destname = 'temp.nc', overwrite = FALSE)
   
   dataset = ncdf4::nc_open('temp.nc')
   
