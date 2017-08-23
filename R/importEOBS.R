@@ -86,6 +86,10 @@ specifyURL <- function(variableName, grid) {
     url <- paste(url, '0.25deg_reg/', sep="")
     ending <- '_0.25deg_reg_v15.0.nc'
   }
+  if (grid=="0.22reg") {
+    url <- paste(url, '0.22deg_reg/', sep="")
+    ending <- '_0.22deg_reg_v15.0.nc'
+  }
   url <- paste(url, variableName, ending, sep="")
   return(url)
 }
