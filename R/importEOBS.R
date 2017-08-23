@@ -119,11 +119,14 @@ GetEobsDimensions <- function(ncdfConnection) {
 GetEobsBbox = function(filename, variableName, bbox, period){
   
   # Open the dataset
-  bzfil <- basename(filename)
-  if (!file.exists(bzfil)) download.file(filename, bzfil)
-  R.utils::gunzip(bzfil, destname = 'temp.nc', overwrite = TRUE)
+  zippedfile <- basename(filename)
+  if (!file.exists(zippedfile)) download.file(filename, zippedfile)
+  unzippedfile <- substr(zippedfile, 1, nchar(zippedfile)-3) 
+  if (!file.exists(unzippedfile)){
+    R.utils::gunzip(bzfil, destname = unzippedfile, overwrite = FALSE)
+  }
   
-  dataset = ncdf4::nc_open('temp.nc')
+  dataset = ncdf4::nc_open(unzippedfile)
   
   # Get lon and lat variables, which are the dimensions of depth.
   values <- GetEobsDimensions(dataset) 
@@ -220,7 +223,7 @@ periodBoundaries <- function(time, period) {
   if (period >= 1980 && period <=1994) {origin <- "1980-01-01"}
   if (period >= 1995 && period <=2016) {origin <- "1995-01-01"}
     
-  xts <- xts::xts(time, as.Date(time, origin="1950-01-01")) 
+  xts <- xts::xts(time, as.Date(time, origin=origin)) 
   interval <- range(as.numeric(xts[period]))
   interval[2] <- interval[2] + 1
   return(interval)
