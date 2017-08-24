@@ -108,6 +108,7 @@ specifyURL <- function(variableName, grid, year) {
 # Get the EOBS netcdf dimensions
 GetEobsDimensions <- function(ncdfConnection) {
   values <- list()
+  #TODO: manage rotated pole coordinates
   values$lat         <- ncdf4::ncvar_get(ncdfConnection, varid = 'latitude')
   values$lon         <- ncdf4::ncvar_get(ncdfConnection, varid = 'longitude')
   values$time        <- ncdf4::ncvar_get(ncdfConnection, varid = 'time')
