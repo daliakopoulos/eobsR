@@ -4,7 +4,7 @@
 #'  (see \code{\link[xts]{.subset.xts}})
 #' @param area Either SpatialPolygons or SpatialPolygonsDataFrame object (see
 #'  package sp)
-#' @param grid String from ('0.22reg', '0.25reg', '0.50reg', '0.22rot', '0.25rot', '0.50rot')
+#' @param grid String from ('0.25reg', '0.50reg', '0.22rot', '0.25rot', '0.50rot')
 #' @param na.rm Boolean indicating if rows with NA can be deleted 
 #' @param download Boolean indicating whether to download
 #' @export
@@ -68,7 +68,7 @@ SanitizeInput <- function(variable, period, area, grid) {
   if (!class(area) %in% c("SpatialPolygons","SpatialPolygonsDataFrame")) {
     stop("Area should be of class SpatialPolygons or SpatialPolygonsDataFrame.")
   }
-  if (!grid %in% c("0.22reg", "0.25reg", "0.50reg", "0.22rot", "0.25rot", "0.50rot")) {
+  if (!grid %in% c("0.25reg", "0.50reg", "0.22rot", "0.25rot", "0.50rot")) {
     stop("Grid should be specified correctly.")
   }
 }
@@ -95,6 +95,11 @@ specifyURL <- function(variableName, grid, year) {
     url <- paste(url, '0.22deg_reg/', sep="")
     resolution <- '_0.22deg_reg_'
   }
+  if (grid=="0.22rot") {
+    url <- paste(url, '0.22deg_rot/', sep="")
+    resolution <- '_0.22deg_rot_'
+  }
+  
   ending <- '_v15.0.nc.gz'
   url <- paste(url, variableName, resolution, year, ending, sep="")
   return(url)
