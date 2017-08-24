@@ -216,14 +216,8 @@ removeNAvalues <- function(data) {
 # To define the valid range 
 # @param time Time
 # @param period Period
-periodBoundaries <- function(time, period) {
-  
-  if (period >= 1950 && period <=1964) {origin <- "1950-01-01"}
-  if (period >= 1965 && period <=1979) {origin <- "1965-01-01"}
-  if (period >= 1980 && period <=1994) {origin <- "1980-01-01"}
-  if (period >= 1995 && period <=2016) {origin <- "1995-01-01"}
-    
-  xts <- xts::xts(time, as.Date(time, origin=origin)) 
+periodBoundaries <- function(time, period) {  
+  xts <- xts::xts(time, as.Date(time, origin="1950-01-01")) 
   interval <- range(as.numeric(xts[period]))
   interval[2] <- interval[2] + 1
   return(interval)
